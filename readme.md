@@ -7,7 +7,7 @@ Aplicação dockerizada deve ser rodada usando docker pois usa solução em cache ta
 
 Antes de rodar o projeto, certifique-se de que você tenha os seguintes itens instalados:
 
-- **Java 19 ou superior** (recomendado: Java 21)
+- **Java 19 ou superior** (Recomendado: Java 21)
 - **Maven** (para compilar o projeto)
 - **Redis** (Redis para armazenar dados temporários, deve rodar na maquina ou docker a porta 6379 
 - **Docker** preferencia docker desktop
@@ -28,6 +28,11 @@ Antes de rodar o projeto, certifique-se de que você tenha os seguintes itens ins
 
 	docker-compose up --build 
 	
+### Parar o serviço
+
+	docker-compose down
+	
+	
 ### Monitoração de Logs
 
 	verificar java:
@@ -41,9 +46,7 @@ Antes de rodar o projeto, certifique-se de que você tenha os seguintes itens ins
 	
 	O Redis estará disponível no host redis e porta 6379 dentro do container.
 
-### Parar o serviço
 
-	docker-compose down
 
 ### Doc Swagger endpoint
 	

@@ -34,13 +34,15 @@ public class DataLoaderService {
         carregarProdutos();
         carregarClientesECompras();
     }
+    
+    private List<Produto> produtos=new ArrayList<>();
 
     private void carregarProdutos() {
         try {
             String json = restTemplate.getForObject(produtosUrl, String.class);
             JsonNode rootNode = objectMapper.readTree(json);
 
-            List<Produto> produtos = new ArrayList<>();
+           // List<Produto> produtos = new ArrayList<>();
             for (JsonNode node : rootNode) {
                 Produto produto = objectMapper.treeToValue(node, Produto.class);
                 produtos.add(produto);
@@ -54,6 +56,9 @@ public class DataLoaderService {
         }
     }
 
+    /**
+     * Carrega os clientes e suas compras do endpoint
+     */
     private void carregarClientesECompras() {
         try {
             String json = restTemplate.getForObject(clientesUrl, String.class);
@@ -65,21 +70,32 @@ public class DataLoaderService {
             for (JsonNode node : rootNode) {
                 Cliente cliente = objectMapper.treeToValue(node, Cliente.class);
 
-                // Extraindo as compras do cliente
-                if (node.has("compras")) {
+                if (node.has("compras")) {   
+                	compras = new ArrayList<>();
                     for (JsonNode compraNode : node.get("compras")) {
                         Compra compra = objectMapper.treeToValue(compraNode, Compra.class);
-                        compra.setCliente(cliente);
+                                                                        
+                        // Adicionando a referência do produto na compra
+                        Produto produto = new Produto();
+						for (Produto p : produtos) {
+							if (p.getCodigo()==compra.getCodigo()) {
+								produto = p;
+							}
+						}                 
+                        
+                        compra.setProduto(produto);
+                        
+            
                         compras.add(compra);
                     }
+                    cliente.setCompras(compras);
                 }
 
                 clientes.add(cliente);
             }
 
-            // Cacheando os clientes e compras no Redis
+            // Cacheando os clientes já com a lista de compras no Redis
             redisTemplate.opsForValue().set("clientes", clientes);
-            redisTemplate.opsForValue().set("compras", compras);
 
             System.out.println("Clientes e compras carregados com sucesso.");
         } catch (Exception e) {

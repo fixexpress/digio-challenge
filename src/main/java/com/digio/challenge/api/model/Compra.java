@@ -1,22 +1,23 @@
 package com.digio.challenge.api.model;
 
 public class Compra {
-    private int codigoProduto;
+    
+	private Produto produto;
     private int quantidade;
-    private Cliente cliente;
-
-    public Compra(int codigoProduto, int quantidade, Cliente cliente) {
-        this.codigoProduto = codigoProduto;
+    private int codigo;
+    
+    public Compra() {
+    	
+    }
+    
+    public Compra(int codigo, int quantidade) {
+        this.setCodigo(codigo);
         this.quantidade = quantidade;
-        this.cliente= cliente;
     }
 
-    public int getCodigoProduto() {
-        return codigoProduto;
-    }
-
-    public void setCodigoProduto(int codigoProduto) {
-        this.codigoProduto = codigoProduto;
+    public Compra(Produto produto, int quantidade) {
+        this.setProduto(produto);
+        this.quantidade = quantidade;
     }
 
     public int getQuantidade() {
@@ -27,13 +28,24 @@ public class Compra {
         this.quantidade = quantidade;
     }
 
-	public Cliente getCliente() {
-		return cliente;
+	public Produto getProduto() {
+		return produto;
 	}
 
-	public void setCliente(Cliente cliente) {
-		this.cliente = cliente;
+	public void setProduto(Produto produto) {
+		this.produto = produto;
 	}
+
+	public int getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(int codigo) {
+		this.codigo = codigo;
+	}
+
+
+
 }
 
 

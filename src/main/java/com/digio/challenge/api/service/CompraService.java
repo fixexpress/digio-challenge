@@ -1,81 +1,123 @@
 package com.digio.challenge.api.service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.digio.challenge.api.dto.ClientesFieisDTO;
+import com.digio.challenge.api.dto.ComprasDTO;
+import com.digio.challenge.api.dto.MaiorCompraDTO;
 import com.digio.challenge.api.model.Cliente;
 import com.digio.challenge.api.model.Compra;
 import com.digio.challenge.api.model.Produto;
-import org.springframework.stereotype.Service;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class CompraService {
 
-    /**
-     * Ordena todas as compras por quantidade em ordem decrescente.
-     *
-     * @param compras Lista de compras.
-     * @return Lista de compras ordenadas.
-     */
-    public List<Compra> ordenarCompras(List<Compra> compras) {
-        return compras.stream()
-                .sorted(Comparator.comparingInt(Compra::getQuantidade).reversed())
-                .collect(Collectors.toList());
-    }
+	/**
+	 * Ordena todas as compras por quantidade em ordem decrescente.
+	 * 
+	 * instruções:
+	 * 
+	 * Retornar uma lista das compras ordenadas de forma crescente por valor, deve
+	 * conter o nome dos clientes, cpf dos clientes, dado dos produtos, quantidade
+	 * das compras e valores totais de cada compra.
+	 *
+	 * @param compras Lista de compras.
+	 * @return Lista de compras ordenadas.
+	 */
 
-    /**
-     * Busca a maior compra em termos de quantidade feita no ano especificado.
-     *
-     * @param compras Lista de compras.
-     * @param ano     Ano para buscar a maior compra.
-     * @return A maior compra encontrada no ano.
-     */
-    public Compra buscarMaiorCompra(List<Compra> compras, int ano) {
-        return compras.stream()
-                .filter(compra -> compra.getCliente() != null) 
-                .filter(compra -> compra.getCliente().getCpf() != null)
-                .max(Comparator.comparingInt(Compra::getCodigoProduto)) 
-                .orElse(null);
-    }
+	public List<ComprasDTO> listComprasOrdenadas(List<Cliente> clientes) {
+		List<ComprasDTO> listComprasDTO = new ArrayList<>();
 
-    /**
-     * Calcula os clientes fiÃ©is, que sÃ£o aqueles com mais compras registradas.
-     *
-     * @param compras Lista de compras.
-     * @return Lista de clientes fiÃ©is.
-     */
-    public List<Cliente> calcularClientesFieis(List<Compra> compras) {
-        Map<Cliente, Long> clienteCompraCounts = compras.stream()
-                .collect(Collectors.groupingBy(Compra::getCliente, Collectors.counting()));
+		for (Cliente cliente : clientes) {
+			for (Compra compra : cliente.getCompras()) {
+				ComprasDTO comprasDTO = new ComprasDTO();
+				comprasDTO.setCpfCliente(cliente.getCpf());
+				comprasDTO.setNomeCliente(cliente.getNome());
+				comprasDTO.setQuantidadeCompras(compra.getQuantidade());
+				comprasDTO.setValorTotalCompras(compra.getQuantidade() * compra.getProduto().getPreco());
+				comprasDTO.setProduto(compra.getProduto());
 
-        long maxCompras = clienteCompraCounts.values().stream()
-                .max(Comparator.naturalOrder())
-                .orElse(0L);
+				listComprasDTO.add(comprasDTO);
+			}
+		}
 
-        return clienteCompraCounts.entrySet().stream()
-                .filter(entry -> entry.getValue() == maxCompras)
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-    }
+		return listComprasDTO.stream().sorted(Comparator.comparingDouble(ComprasDTO::getValorTotalCompras))
+				.collect(Collectors.toList());
+	}
 
-    /**
-     * Recomenda um produto com base no histÃ³rico de compras do cliente identificado pelo CPF.
-     *
-     * @param compras Lista de compras.
-     * @param cpf     CPF do cliente para gerar a recomendaÃ§Ã£o
-     * @return Produto recomendado, se disponÃ­vel.
-     */
-    public Produto recomendarProduto(List<Compra> compras, String cpf) {
-        return compras.stream()
-                .filter(compra -> compra.getCliente() != null && compra.getCliente().getCpf().equals(cpf))
-                .max(Comparator.comparingInt(Compra::getQuantidade))
-                .map(compra -> new Produto(
-                        compra.getCodigoProduto(),
-                        "Recomendado",
-                        0.0, 
-                        "N/A", // Safra desconhecida
-                        0 // Ano desconhecido
-                ))
-                .orElse(null);
-    }
+	/**
+	 * Retorna a maior compra de um determinado ano.
+	 * 
+	 * instruções:
+	 * 
+	 * Retornar a maior compra do ano informando os dados da compra
+	 * disponibilizados, deve ter o nome do cliente, cpf
+	 * 
+	 * @param clientes Lista de clientes.
+	 * @param ano      Ano da compra.
+	 * @return Maior compra do ano
+	 * 
+	 */
+	public MaiorCompraDTO getMaiorCompra(List<Cliente> clientes, int ano) {
+		MaiorCompraDTO maiorCompraDTO = null;
+		double maxValorTotal = 0;
+
+		for (Cliente cliente : clientes) {
+			for (Compra compra : cliente.getCompras()) {
+				Produto produto = compra.getProduto();
+				if (produto != null && produto.getAno_compra() == ano) {
+					double valorTotal = compra.getQuantidade() * produto.getPreco();
+					if (valorTotal > maxValorTotal) {
+						maxValorTotal = valorTotal;
+						maiorCompraDTO = new MaiorCompraDTO();
+						maiorCompraDTO.setCpfCliente(cliente.getCpf());
+						maiorCompraDTO.setNomeCliente(cliente.getNome());
+						maiorCompraDTO.setQuantidadeCompras(compra.getQuantidade());
+						maiorCompraDTO.setValorTotalCompras(valorTotal);
+						
+						maiorCompraDTO.setProduto(produto);
+					}
+				}
+			}
+		}
+
+		return maiorCompraDTO;
+	}
+	
+	/**
+	 * Retorna os 3 clientes mais fiéis.
+	 * 
+	 * instruções:
+	 * 
+	 * Retornar o Top 3 clientes mais fieis, clientes que possuem mais compras
+	 * recorrentes com maiores valores.
+	 * 
+	 * @param clientes Lista de clientes.
+	 * @return Top 3 clientes mais fiéis.
+	 */
+	public ClientesFieisDTO calcularClientesFieis(List<Cliente> clientes) {
+		ClientesFieisDTO clientesFieisDTO = new ClientesFieisDTO();
+		List<Cliente> clientesFieis = new ArrayList<>();
+		for (Cliente cliente : clientes) {
+			double valorTotalCompras = 0;
+			for (Compra compra : cliente.getCompras()) {
+				Produto produto = compra.getProduto();
+				if (produto != null) {
+					valorTotalCompras += compra.getQuantidade() * produto.getPreco();
+				}
+			}
+			cliente.setValorTotalCompras(valorTotalCompras);
+		}
+		clientesFieis = clientes.stream().sorted(Comparator.comparingDouble(Cliente::getValorTotalCompras).reversed())
+				.limit(3).collect(Collectors.toList());
+		
+		clientesFieisDTO.setClientes(clientesFieis);
+		return clientesFieisDTO;
+	}
+	
 }

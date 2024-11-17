@@ -2,21 +2,21 @@ package com.digio.challenge.api.model;
 
 public class Produto {
     private int codigo;
-    private String tipoVinho;
+    private String tipo_vinho;
     private double preco;
     private String safra;
-    private int anoCompra;
+    private int ano_compra;
 
     public Produto() {
-        // Construtor padrão necessário para Jackson
+        // Construtor para Jackson
     }
     
-    public Produto(int codigo, String tipoVinho, double preco, String safra, int anoCompra) {
+    public Produto(int codigo, String tipo_vinho, double preco, String safra, int ano_compra) {
         this.codigo = codigo;
-        this.tipoVinho = tipoVinho;
+        this.setTipo_vinho(tipo_vinho);
         this.preco = preco;
         this.safra = safra;
-        this.anoCompra = anoCompra;
+        this.setAno_compra(ano_compra);
     }
 
     public int getCodigo() {
@@ -27,13 +27,6 @@ public class Produto {
         this.codigo = codigo;
     }
 
-    public String getTipoVinho() {
-        return tipoVinho;
-    }
-
-    public void setTipoVinho(String tipoVinho) {
-        this.tipoVinho = tipoVinho;
-    }
 
     public double getPreco() {
         return preco;
@@ -51,11 +44,19 @@ public class Produto {
         this.safra = safra;
     }
 
-    public int getAnoCompra() {
-        return anoCompra;
-    }
+	public String getTipo_vinho() {
+		return tipo_vinho;
+	}
 
-    public void setAnoCompra(int anoCompra) {
-        this.anoCompra = anoCompra;
-    }
+	public void setTipo_vinho(String tipo_vinho) {
+		this.tipo_vinho = tipo_vinho;
+	}
+
+	public int getAno_compra() {
+		return ano_compra;
+	}
+
+	public void setAno_compra(int ano_compra) {
+		this.ano_compra = ano_compra;
+	}
 }
