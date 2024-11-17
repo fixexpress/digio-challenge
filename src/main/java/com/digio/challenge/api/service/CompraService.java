@@ -120,4 +120,32 @@ public class CompraService {
 		return clientesFieisDTO;
 	}
 	
+	/**
+	 * Retorna uma recomendação de vinho baseado nos tipos de vinho que o cliente
+	 * mais compra.
+	 * 
+	 * instruções:
+	 * 
+	 * Retornar uma recomendação de vinho baseado nos tipos de vinho que o cliente
+	 * mais compra.
+	 * 
+	 * @param clientes   Lista de clientes.
+	 * @param cpfCliente CPF do cliente.
+	 * @return Recomendação de vinho.
+	 */
+	public Produto getRecomendacao(List<Cliente> clientes, String cpfCliente) {
+		Produto recomendacao = new Produto();
+		Cliente cliente = clientes.stream().filter(c -> c.getCpf().equals(cpfCliente)).findFirst().orElse(null);
+		if (cliente != null) {
+			List<Compra> compras = cliente.getCompras();
+			if (compras != null && !compras.isEmpty()) {
+				Produto produto = compras.stream().map(Compra::getProduto)
+						.collect(Collectors.groupingBy(Produto::getTipo_vinho)).entrySet().stream()
+						.max(Comparator.comparingInt(e -> e.getValue().size())).get().getValue().get(0);
+				recomendacao = produto;
+			}
+		}
+		return recomendacao;
+	}
+	
 }

@@ -13,6 +13,7 @@ import com.digio.challenge.api.dto.ClientesFieisDTO;
 import com.digio.challenge.api.dto.ComprasDTO;
 import com.digio.challenge.api.dto.MaiorCompraDTO;
 import com.digio.challenge.api.model.Cliente;
+import com.digio.challenge.api.model.Produto;
 import com.digio.challenge.api.service.CompraService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -73,6 +74,7 @@ public class ComprasController {
 	 */
 	
 	@GetMapping("/clientes-fieis")
+	@Operation(summary = "ObtÃ©m o Top 3 clientes mais fieis")
 	public ClientesFieisDTO getClientesFieis() {
         @SuppressWarnings("unchecked")
         List<Cliente> clientes = (List<Cliente>) redisTemplate.opsForValue().get("clientes");
@@ -85,8 +87,21 @@ public class ComprasController {
 	
 /*
  * GET: /recomendacao/cliente/tipo 
- * Retornar uma recomendação de vinho baseado nos tipos de vinho que o cliente mais compra. 
+ * Retornar uma recomendação de vinho baseado nos tipos de vinho que o cliente mais compra.
+ * 
+ *  @FIXME: O endpoint /recomendacao/cliente/tipo não foi implementado, pois o contexto da aplicação não possui informações suficientes para tal.
+ *  O contexto da aplicação não possui informações suficientes para implementar a recomendação de vinho baseado nos tipos de vinho que o cliente mais compra.
+ *  
  */
-	
+	@GetMapping("/recomendacao/{cpfCliente}")
+	@Operation(summary = "ObtÃ©m a recomendaÃ§Ã£o de vinho baseado nos tipos de vinho que o cliente mais compra")
+	public Produto getRecomendacao(@PathVariable @Parameter(description = "CPF do cliente") String cpfCliente) {
+		@SuppressWarnings("unchecked")
+		List<Cliente> clientes = (List<Cliente>) redisTemplate.opsForValue().get("clientes");
+		if (clientes == null) {
+			throw new IllegalStateException("As compras nÃ£o foram carregadas no cache.");
+		}
+		return compraService.getRecomendacao(clientes, cpfCliente);
+	}
 
 }
