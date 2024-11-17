@@ -27,6 +27,7 @@ Antes de rodar o projeto, certifique-se de que você tenha os seguintes itens ins
 ### Subir e rodar a aplicação
 
 	docker-compose up --build 
+	docker-compose up -d
 	
 ### Parar o serviço
 
